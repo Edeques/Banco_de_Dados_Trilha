@@ -48,11 +48,11 @@ class MatrizDisciplina(models.Model):
 
 
 class PreRequisito(models.Model):
+    pk = models.CompositePrimaryKey('id_item_dependente_id', 'id_item_requisito_id')
     id_item_dependente = models.ForeignKey(
         'matrizes.MatrizDisciplina',
         related_name='dependentes',
         on_delete=models.CASCADE,
-        primary_key=True,
         db_column='id_item_dependente'
     )
     id_item_requisito = models.ForeignKey(
@@ -64,7 +64,6 @@ class PreRequisito(models.Model):
 
     class Meta:
         db_table = 'pre_requisito'
-        unique_together = (('id_item_dependente', 'id_item_requisito'),)
         constraints = [
             CheckConstraint(
                 condition=~Q(id_item_dependente=F('id_item_requisito')),
