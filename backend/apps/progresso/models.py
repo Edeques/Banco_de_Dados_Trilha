@@ -1,12 +1,19 @@
 from django.db import models
-from django.db.models import UniqueConstraint
 
+# CLASSE 15: Progresso
 class Progresso(models.Model):
-    id_progresso = models.AutoField(primary_key=True)
-    id_aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE)
-    id_item_matriz = models.ForeignKey('matrizes.MatrizDisciplina', on_delete=models.PROTECT)
-    situacao = models.CharField(max_length=50)
-    atualizado_em = models.DateTimeField(auto_now=True)
+    id_progresso = models.AutoField(primary_key=True, db_column='id_progresso')
+    id_usuario = models.ForeignKey( # Confira no Supabase se a coluna é id_usuario ou id_aluno
+        'usuarios.Aluno', 
+        on_delete=models.CASCADE, 
+        db_column='id_usuario'
+    )
+    id_disciplina = models.ForeignKey(
+        'disciplinas.Disciplina', 
+        on_delete=models.CASCADE, 
+        db_column='id_disciplina'
+    )
+    # Mantenha os outros campos (ex: status, nota, semestre_cursado, etc.)
 
     class Meta:
-        constraints = [UniqueConstraint(fields=['id_aluno', 'id_item_matriz'], name='uq_progresso')]
+        db_table = 'progresso'

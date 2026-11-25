@@ -1,30 +1,48 @@
 from django.db import models
-from django.db.models import Q, UniqueConstraint, CheckConstraint
 
+# CLASSE 12: Planejamento
 class Planejamento(models.Model):
-    id_planejamento = models.AutoField(primary_key=True)
-    id_aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE)
-    id_matriz = models.ForeignKey('matrizes.Matriz', on_delete=models.CASCADE)
-    nome = models.CharField(max_length=255)
-    criado_em = models.DateTimeField(auto_now_add=True)
-    atualizado_em = models.DateTimeField(auto_now=True)
+    id_planejamento = models.AutoField(primary_key=True, db_column='id_planejamento')
+    id_usuario = models.ForeignKey( # Confira no Supabase se a coluna é id_usuario ou id_aluno
+        'usuarios.Aluno', 
+        on_delete=models.CASCADE, 
+        db_column='id_usuario'
+    )
+    # Mantenha os outros campos (ex: titulo, data_criacao, etc.)
 
+    class Meta:
+        db_table = 'planejamento'
+
+
+# CLASSE 13: SemestrePlanejamento
 class SemestrePlanejamento(models.Model):
-    id_semestre_planejamento = models.AutoField(primary_key=True)
-    id_planejamento = models.ForeignKey('planejamentos.Planejamento', on_delete=models.CASCADE)
-    nome = models.CharField(max_length=255)
-    ordem = models.IntegerField()
+    id_semestre_planejamento = models.AutoField(primary_key=True, db_column='id_semestre_planejamento')
+    id_planejamento = models.ForeignKey(
+        Planejamento, 
+        on_delete=models.CASCADE, 
+        db_column='id_planejamento'
+    )
+    # Mantenha os outros campos (ex: numero_semestre, periodo_letivo, etc.)
 
     class Meta:
-        constraints = [
-            UniqueConstraint(fields=['id_planejamento', 'ordem'], name='uq_semestre_ordem'),
-            CheckConstraint(condition=Q(ordem__gt=0), name='chk_sem_ordem')
-        ]
+        db_table = 'semestre_planejamento'
 
+
+# CLASSE 14: ItemPlanejamento
 class ItemPlanejamento(models.Model):
-    id_item_planejamento = models.AutoField(primary_key=True)
-    id_semestre_planejamento = models.ForeignKey('planejamentos.SemestrePlanejamento', on_delete=models.CASCADE)
-    id_item_matriz = models.ForeignKey('matrizes.MatrizDisciplina', on_delete=models.CASCADE)
+    id_item_planejamento = models.AutoField(primary_key=True, db_column='id_item_planejamento')
+    id_semestre_planejamento = models.ForeignKey(
+        SemestrePlanejamento, 
+        on_delete=models.CASCADE, 
+        db_column='id_semestre_planejamento'
+    )
+    id_disciplina = models.ForeignKey(
+        'disciplinas.Disciplina', 
+        on_delete=models.CASCADE, 
+        db_column='id_disciplina'
+    )
+    # Caso tenha ligação opcional com ItemOferta, adicione:
+    # id_item_oferta = models.ForeignKey('ofertas.ItemOferta', on_delete=models.SET_NULL, null=True, blank=True, db_column='id_item_oferta')
 
     class Meta:
-        constraints = [UniqueConstraint(fields=['id_semestre_planejamento', 'id_item_matriz'], name='uq_item_plan_semestre')]
+        db_table = 'item_planejamento'
